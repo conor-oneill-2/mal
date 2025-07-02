@@ -66,7 +66,12 @@ def read_list(reader: Reader,start_tok:str) -> MalList:
         tok=reader.peek()
     #If token is closing bracket, advance position to next token
     tok=reader.next()
-    return MalList(malobjs,start_tok,close_match[start_tok])
+    if start_tok=="(":
+        return MalList(malobjs)
+    if start_tok=="[":
+        return MalVector(malobjs)
+    if start_tok=="{":
+        return MalHashMap(malobjs)
 
 def read_atom(tok: str) -> MalObj:
     if tok=="nil":

@@ -1,20 +1,44 @@
 import reader, printer
-from mal_types import MalObj
+from mal_types import *
 
 import sys
+
+repl_env={
+    "+": lambda x,y: x+y,
+    "-": lambda x,y: x-y,
+    "*": lambda x,y: x*y,
+    "/": lambda x,y: x//y
+}
 
 def READ(raw_str: str) -> MalObj:
     return reader.read_str(raw_str)
 
-def EVAL(malobj: MalObj) -> MalObj:
+def EVAL(malobj: MalObj,repl_env:dict) -> MalObj:
+    if "DEBUG-EVAL" in repl_env:
+        if repl_env["DEBUG-EVAL"] not in [MalNil(),MalBool(False)]:
+            printer.pr_str(malobj)
+    if type(malobj)==MalSym:
+        if malobj.sym in repl_env:
+            return repl_env[malobj.sym]
+        else:
+            print(f"Argument {malobj.sym} not found.",sys.stderr)
+            return MalError()
+    elif type(malobj)==MalList:
+        if len(malobj.objs)>=1:
+            eval_objs=list(map(lambda m: EVAL(m,repl_env),malobj.objs))
+            return eval_objs[0](*eval_objs[1:])
+    elif type(malobj)==MalVector:
+        return MalVector(list(map(lambda m: EVAL(m,repl_env),malobj.objs)))
+    elif type(malobj)==MalHashMap:
+        return MalHashMap(list(map(lambda m: EVAL(m,repl_env),malobj.objs)))
     return malobj
 
 def PRINT(malobj: MalObj) -> str:
     return printer.pr_str(malobj,print_readably=True)
 
 def rep(raw_str: str) -> str:
-    proc_line=READ(raw_str)
-    result=EVAL(proc_line)
+    ast=READ(raw_str)
+    result=EVAL(ast, repl_env)
     output=PRINT(result)
     return output
 

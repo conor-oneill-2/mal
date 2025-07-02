@@ -1,24 +1,53 @@
 from typing import List
 
 class MalObj:
-    pass
+    def __call__(self):
+        return self
 
 class MalList(MalObj):
-    __slots__=["objs","start_tok","end_tok"]
-    def __init__(self,objs: List[MalObj],start_tok="(",end_tok=")"):
+    __slots__="objs"
+    def __init__(self,objs: List[MalObj]):
         self.objs=objs
-        self.start_tok=start_tok
-        self.end_tok=end_tok
     
     def __str__(self):
         result=" ".join(map(lambda x: str(x),self.objs))
-        return self.start_tok+result+self.end_tok
+        return "("+result+")"
+
+class MalVector(MalObj):
+    __slots__="objs"
+    def __init__(self,objs: List[MalObj]):
+        self.objs=objs
+    
+    def __str__(self):
+        result=" ".join(map(lambda x: str(x),self.objs))
+        return "["+result+"]"
+
+class MalHashMap(MalObj):
+    __slots__="objs"
+    def __init__(self,objs: List[MalObj]):
+        self.objs=objs
+    
+    def __str__(self):
+        result=" ".join(map(lambda x: str(x),self.objs))
+        return "{"+result+"}"
 
 class MalInt(MalObj):
     __slots__="val"
     def __init__(self,val:int):
         self.val=val
     
+    def __add__(self,other):
+        return MalInt(self.val+other.val)
+    
+    def __sub__(self,other):
+        return MalInt(self.val-other.val)
+    
+    def __mul__(self,other):
+        return MalInt(self.val*other.val)
+    
+    def __floordiv__(self,other):
+        return MalInt(self.val//other.val)
+
     def __str__(self):
         return str(self.val)
 
@@ -80,3 +109,7 @@ class MalKeyWord(MalObj):
     
     def __str__(self):
         return ":"+self.keyword
+
+class MalError(MalObj,Exception):
+    def __call__(self,*args):
+        return MalError()
