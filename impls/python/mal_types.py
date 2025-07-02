@@ -72,3 +72,11 @@ class MalWithMeta(MalObj):
     
     def __str__(self):
         return "with-meta "
+
+class MalKeyWord(MalObj):
+    __slots__="keyword"
+    def __init__(self,keyword):
+        self.keyword=keyword
+    
+    def __str__(self):
+        return ":"+self.keyword

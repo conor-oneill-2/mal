@@ -75,6 +75,8 @@ def read_atom(tok: str) -> MalObj:
         return MalBool(True)
     if tok=="false":
         return MalBool(False)
+    if tok[0]==":":
+        return MalKeyWord(tok[1:])
     #If token starts and ends with double quotes
     if tok[0]=='"' and tok[-1]=='"':
         return read_mal_str(tok[1:-1])
