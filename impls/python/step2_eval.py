@@ -13,7 +13,7 @@ repl_env={
 def READ(raw_str: str) -> MalObj:
     balanced=check_if_balanced(raw_str)
     if not balanced:
-        raise MalError("Input is unbalanced.")
+        raise RuntimeError("Input is unbalanced.")
     return reader.read_str(raw_str)
 
 def EVAL(malobj: MalObj,repl_env:dict) -> MalObj:
@@ -24,7 +24,7 @@ def EVAL(malobj: MalObj,repl_env:dict) -> MalObj:
         if malobj.sym in repl_env:
             return repl_env[malobj.sym]
         else:
-            return MalError(f"Argument {malobj.sym} not found.")
+            raise RuntimeError(f"Argument {malobj.sym} not found.")
     elif type(malobj)==MalList:
         if len(malobj.objs)>=1:
             eval_objs=list(map(lambda m: EVAL(m,repl_env),malobj.objs))
@@ -97,5 +97,5 @@ if __name__=="__main__":
         
         try:
             print(rep(raw_str))
-        except MalError as e:
+        except RuntimeError as e:
             print(e,file=sys.stderr)

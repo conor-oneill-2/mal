@@ -1,7 +1,7 @@
 from typing import Optional
 import sys
 
-from mal_types import MalObj, MalSym, MalError
+from mal_types import MalObj, MalSym
 
 class Env:
     __slots__=["outer","data"]
@@ -21,7 +21,7 @@ class Env:
             return self.data[sym]
         if self.outer!=None:
             return self.outer[sym]
-        raise MalError(f"'{sym}' not found.")
+        raise RuntimeError(f"'{sym}' not found.")
     
     def __setitem__(self,sym:MalSym,val=MalObj):
         self.data[sym]=val

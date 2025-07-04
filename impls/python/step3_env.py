@@ -16,7 +16,7 @@ def make_base_env() -> Env:
 def READ(raw_str: str) -> MalObj:
     balanced=check_if_balanced(raw_str)
     if not balanced:
-        raise MalError("Input is unbalanced.")
+        raise RuntimeError("Input is unbalanced.")
     return reader.read_str(raw_str)
 
 def EVAL(malobj: MalObj,env:Env) -> MalObj:
@@ -46,9 +46,9 @@ def apply(func:MalList,args:List[MalObj],env) -> MalObj:
     #def! special atom handling
     if func==MalSym("def!"):
         if len(args)!=2:
-            raise MalError("Incorrect number of arguments in def! function")
+            raise RuntimeError("Incorrect number of arguments in def! function")
         if type(args[0])!=MalSym:
-            raise MalError(f"{args[0]} is not a valid variable name.")
+            raise RuntimeError(f"{args[0]} is not a valid variable name.")
         val=EVAL(args[1],env)
         env[args[0].sym]=val
         return val
@@ -56,9 +56,9 @@ def apply(func:MalList,args:List[MalObj],env) -> MalObj:
     #let* special atom handling
     if func==MalSym("let*"):
         if len(args)!=2:
-            raise MalError("Incorrect number of arguments in let* function")
+            raise RuntimeError("Incorrect number of arguments in let* function")
         if type(args[0]) not in [MalList,MalVector]:
-            raise MalError("First argument to let* function must be a list or vector")
+            raise RuntimeError("First argument to let* function must be a list or vector")
         return eval_let(args[0],args[1],env)
         
     #default case
@@ -68,11 +68,11 @@ def apply(func:MalList,args:List[MalObj],env) -> MalObj:
 def eval_let(bindings:Union[MalList,MalVector],expr:MalObj,env:Env) -> MalObj:
     inner_env=Env(env)
     if len(bindings.objs)%2==1:
-        raise MalError("Binding argument must come in pairs")
+        raise RuntimeError("Binding argument must come in pairs")
     i=0
     while i<len(bindings.objs):
         if type(bindings.objs[i])!=MalSym:
-            raise MalError(f"{bindings.objs[i]} is not a valid symbol.")
+            raise RuntimeError(f"{bindings.objs[i]} is not a valid symbol.")
         key=bindings.objs[i].sym
         kval=EVAL(bindings.objs[i+1],inner_env)
         inner_env[key]=kval
@@ -139,5 +139,5 @@ if __name__=="__main__":
         raw_str=input("user> ")
         try:
             print(rep(raw_str,env))
-        except MalError as e:
+        except RuntimeError as e:
             print(e,file=sys.stderr)

@@ -206,14 +206,3 @@ class MalKeyWord(MalObj):
 
     def __hash__(self):
         return hash(str(self))
-
-class MalError(MalObj,Exception):
-    def __init__(self,message:str):
-        self.message=message
-        self.output=sys.stderr
-    
-    def __str__(self):
-        return self.message
-
-    def __call__(self,*args):
-        return MalError(self.message)
