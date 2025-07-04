@@ -11,6 +11,9 @@ repl_env={
 }
 
 def READ(raw_str: str) -> MalObj:
+    balanced=check_if_balanced(raw_str)
+    if not balanced:
+        raise MalError("Input is unbalanced.")
     return reader.read_str(raw_str)
 
 def EVAL(malobj: MalObj,repl_env:dict) -> MalObj:
@@ -21,8 +24,7 @@ def EVAL(malobj: MalObj,repl_env:dict) -> MalObj:
         if malobj.sym in repl_env:
             return repl_env[malobj.sym]
         else:
-            print(f"Argument {malobj.sym} not found.",sys.stderr)
-            return MalError()
+            return MalError(f"Argument {malobj.sym} not found.")
     elif type(malobj)==MalList:
         if len(malobj.objs)>=1:
             eval_objs=list(map(lambda m: EVAL(m,repl_env),malobj.objs))
@@ -71,17 +73,17 @@ def check_if_balanced(raw_str):
             st.append(c)
         elif c in ")}]":
             if st==[]:
-                print("Input is unbalanced",file=sys.stderr)
+                #print("Input is unbalanced",file=sys.stderr)
                 return False
             elif c==close_match[st[-1]]:
                 st.pop()
             else:
-                print("Input is unbalanced",file=sys.stderr)
+                #print("Input is unbalanced",file=sys.stderr)
                 return False
 
 
     if st!=[] or in_string:
-        print("Input is unbalanced",file=sys.stderr)
+        #print("Input is unbalanced",file=sys.stderr)
         return False
     else:
         return True
@@ -92,6 +94,8 @@ def check_if_balanced(raw_str):
 if __name__=="__main__":
     while True:
         raw_str=input("user> ")
-        balanced=check_if_balanced(raw_str)
-        if balanced:
+        
+        try:
             print(rep(raw_str))
+        except MalError as e:
+            print(e,file=sys.stderr)
